@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f97316">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="LoLoMove">
+  <title>LoLoMove — Giao hàng thật nhẹ</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --orange: #f97316;
+      --orange-dark: #e85d04;
+      --orange-soft: #fff1e7;
+      --ink: #172033;
+      --muted: #788196;
+      --line: #edf0f4;
+      --surface: #ffffff;
+      --canvas: #f6f7fb;
+      --green: #15966a;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--canvas); color: var(--ink); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app-shell { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+    .sidebar {
+      position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column;
+      padding: 27px 17px 18px; background: var(--surface); border-right: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 11px; margin-bottom: 42px; }
+    .brand-mark {
+      width: 40px; height: 40px; display: grid; place-items: center; color: white; font-size: 19px;
+      font-weight: 850; border-radius: 14px; background: linear-gradient(145deg, #ff9a42, #f15b22);
+      box-shadow: 0 7px 16px #f9731633;
+    }
+    .brand-name { font-size: 20px; font-weight: 850; letter-spacing: -.8px; }
+    .brand-name span { color: var(--orange); }
+    .nav-label { padding: 0 13px; margin-bottom: 10px; color: #a0a7b5; font-size: 10px; font-weight: 800; letter-spacing: 1.4px; }
+    .nav-list { display: grid; gap: 5px; }
+    .nav-item {
+      display: flex; width: 100%; align-items: center; gap: 13px; padding: 12px 13px; border: 0;
+      border-radius: 11px; background: transparent; color: #737d90; text-align: left; font-size: 13px; font-weight: 650;
+      transition: .18s ease;
+    }
+    .nav-item:hover { color: var(--ink); background: #f8f8fa; }
+    .nav-item.active { color: var(--orange-dark); background: var(--orange-soft); }
+    .nav-icon { width: 19px; height: 19px; display: grid; place-items: center; font-size: 17px; }
+    .sidebar-bottom { margin-top: auto; }
+    .help-card { padding: 15px; border: 1px solid #f1e8e1; border-radius: 14px; background: #fffaf6; }
+    .help-card strong { display: block; margin-bottom: 5px; font-size: 12px; }
+    .help-card p { margin: 0 0 11px; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .help-card a { color: var(--orange-dark); font-size: 11px; font-weight: 750; text-decoration: none; }
+    .profile-mini { display: flex; align-items: center; gap: 10px; padding: 18px 8px 0; }
+    .avatar { display: grid; flex: 0 0 auto; place-items: center; width: 35px; height: 35px; border-radius: 50%; background: #ffead9; color: #c64a16; font-size: 12px; font-weight: 800; }
+    .profile-mini strong { display: block; font-size: 11px; }
+    .profile-mini span { color: var(--muted); font-size: 10px; }
+    .main { min-width: 0; }
+    .topbar { height: 74px; display: flex; align-items: center; justify-content: space-between; padding: 0 38px; background: #fff; border-bottom: 1px solid var(--line); }
+    .breadcrumbs { color: var(--muted); font-size: 12px; }
+    .breadcrumbs strong { color: var(--ink); }
+    .top-actions { display: flex; align-items: center; gap: 17px; }
+    .icon-button { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 11px; background: white; color: #5e687b; font-size: 15px; }
+    .notification-dot { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; border: 1px solid white; border-radius: 50%; background: var(--orange); }
+    .top-date { color: var(--muted); font-size: 11px; }
+    .content { max-width: 1400px; margin: auto; padding: 31px 38px 44px; }
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 23px; }
+    .page-heading h1 { margin: 0 0 5px; font-size: clamp(22px, 2.4vw, 29px); letter-spacing: -1px; }
+    .page-heading p { margin: 0; color: var(--muted); font-size: 12px; }
+    .date-pill { padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: white; color: #697386; font-size: 11px; white-space: nowrap; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+    .stat-card { display: flex; align-items: center; gap: 13px; min-height: 91px; padding: 17px 19px; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    .stat-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; background: #fff2e8; color: var(--orange); font-size: 18px; }
+    .stat-card:nth-child(2) .stat-icon { background: #e9f7f1; color: #15966a; }
+    .stat-card:nth-child(3) .stat-icon { background: #eef1ff; color: #6574d8; }
+    .stat-card span { display: block; margin-bottom: 3px; color: var(--muted); font-size: 10px; }
+    .stat-card strong { font-size: 20px; letter-spacing: -.5px; }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.13fr) minmax(345px, .87fr); gap: 18px; align-items: stretch; }
+    .panel { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: white; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 14px; }
+    .panel-head h2 { margin: 0; font-size: 14px; letter-spacing: -.2px; }
+    .panel-head p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border-radius: 20px; background: #ebf8f2; color: #16835d; font-size: 9px; font-weight: 750; white-space: nowrap; }
+    .live-badge i { width: 6px; height: 6px; border-radius: 50%; background: #28b27c; }
+    .map {
+      position: relative; min-height: 414px; overflow: hidden; background: #edf2eb;
+      background-image: linear-gradient(24deg, transparent 46%, #fff 46.5%, #fff 48%, transparent 48.5%),
+        linear-gradient(112deg, transparent 42%, #fff 42.6%, #fff 44.2%, transparent 44.8%),
+        linear-gradient(161deg, transparent 60%, #fff 60.5%, #fff 62%, transparent 62.5%),
+        linear-gradient(71deg, transparent 68%, #d8e8d9 68.5%, #d8e8d9 78%, transparent 78.5%);
+      background-size: 270px 180px, 310px 210px, 360px 240px, 100% 100%;
+    }
+    .map::before { content: ""; position: absolute; inset: 0; opacity: .48; background-image: radial-gradient(#c9d6c5 .75px, transparent .75px); background-size: 13px 13px; }
+    .map-water { position: absolute; width: 42%; height: 150%; top: -25%; right: -17%; transform: rotate(18deg); border-left: 11px solid #dcecf4; border-radius: 48%; background: #e4f0f3; }
+    .map-road { position: absolute; height: 8px; width: 120%; top: 56%; left: -9%; transform: rotate(-17deg); border: 2px solid #fff; background: #f4d49b; box-shadow: 0 0 0 1px #e8dfcb; }
+    .map-road.secondary { top: 31%; left: -10%; height: 5px; transform: rotate(21deg); background: #fff; }
+    .map-label { position: absolute; color: #87918a; font-size: 9px; font-weight: 650; }
+    .map-label.one { top: 28%; left: 18%; } .map-label.two { top: 70%; left: 52%; }
+    .map-label.three { top: 17%; right: 18%; } .map-label.four { top: 80%; left: 17%; }
+    .route-line { position: absolute; left: 27%; top: 34%; width: 39%; height: 31%; border-top: 3px dashed var(--orange); border-right: 3px dashed var(--orange); border-radius: 0 65% 0 0; transform: rotate(20deg); }
+    .map-pin { position: absolute; display: grid; place-items: center; width: 27px; height: 27px; border: 3px solid white; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); box-shadow: 0 3px 8px #37415133; }
+    .map-pin span { transform: rotate(45deg); color: white; font-size: 10px; font-weight: 900; }
+    .map-pin.pickup { top: 31%; left: 25%; background: var(--orange); }
+    .map-pin.dropoff { top: 59%; left: 65%; background: #243248; }
+    .map-caption { position: absolute; left: 15px; bottom: 14px; display: flex; gap: 8px; align-items: center; padding: 9px 11px; border-radius: 10px; background: #ffffffed; box-shadow: 0 4px 15px #26344912; color: #596477; font-size: 10px; }
+    .map-caption strong { color: var(--ink); }
+    .form-panel { padding-bottom: 18px; }
+    .form-panel .panel-head { padding-bottom: 17px; }
+    .route-form { padding: 0 20px; }
+    .address-stack { position: relative; display: grid; gap: 10px; margin-bottom: 17px; }
+    .address-stack::before { content: ""; position: absolute; top: 22px; bottom: 22px; left: 16px; border-left: 1px dashed #cbd1db; }
+    .address-row { position: relative; display: flex; align-items: center; gap: 10px; }
+    .route-dot { z-index: 1; display: grid; flex: 0 0 auto; place-items: center; width: 33px; height: 33px; border: 1px solid var(--line); border-radius: 10px; background: white; font-size: 12px; }
+    .route-dot.start { color: var(--orange); } .route-dot.end { color: #334155; }
+    .field { min-width: 0; flex: 1; }
+    .field label { display: block; margin: 0 0 4px; color: #8b93a2; font-size: 9px; font-weight: 700; }
+    .field input, .field select { width: 100%; padding: 7px 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 11px; }
+    .field input::placeholder { color: #a9afba; }
+    .address-row .field { padding: 1px 10px 4px; border: 1px solid var(--line); border-radius: 9px; }
+    .section-label { display: flex; justify-content: space-between; align-items: center; margin: 0 0 9px; font-size: 10px; font-weight: 750; }
+    .section-label span { color: var(--muted); font-size: 9px; font-weight: 500; }
+    .vehicle-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+    .vehicle-option { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: white; text-align: left; transition: .15s ease; }
+    .vehicle-option:hover { border-color: #ffc08e; }
+    .vehicle-option.selected { border-color: var(--orange); background: #fff9f4; box-shadow: 0 0 0 2px #f9731610; }
+    .vehicle-top { display: flex; width: 100%; justify-content: space-between; align-items: center; color: #49556a; font-size: 15px; }
+    .vehicle-name { color: var(--ink); font-size: 9px; font-weight: 750; }
+    .vehicle-price { color: var(--muted); font-size: 8px; }
+    .details-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .select-field { padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; }
+    .select-field label { display: block; margin-bottom: 3px; color: #8b93a2; font-size: 9px; }
+    .select-field select { width: 100%; border: 0; outline: 0; background: white; color: #354052; font-size: 10px; }
+    .payment-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--line); }
+    .payment-row span { color: var(--muted); font-size: 10px; }
+    .payment-select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: #4a5568; font-size: 9px; }
+    .price-row { display: flex; justify-content: space-between; align-items: center; padding: 2px 0 14px; }
+    .price-row span { color: var(--muted); font-size: 10px; }
+    .price-row strong { color: var(--orange-dark); font-size: 18px; letter-spacing: -.4px; }
+    .primary-button { width: 100%; padding: 12px 16px; border: 0; border-radius: 10px; background: linear-gradient(100deg, #ff8a2c, #f15b22); color: white; font-size: 11px; font-weight: 800; box-shadow: 0 6px 13px #f9731628; transition: .2s ease; }
+    .primary-button:hover { transform: translateY(-1px); box-shadow: 0 9px 18px #f9731638; }
+    .fine-print { margin: 9px 0 0; color: #9aa2af; font-size: 9px; text-align: center; }
+    .recent-panel { margin-top: 18px; }
+    .text-button { padding: 0; border: 0; background: transparent; color: var(--orange-dark); font-size: 10px; font-weight: 750; }
+    .order-list { padding: 0 20px 14px; }
+    .order-item { display: grid; grid-template-columns: 37px minmax(0, 1fr) auto; gap: 11px; align-items: center; padding: 12px 0; border-top: 1px solid #f1f2f5; }
+    .order-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #fff3e9; font-size: 16px; }
+    .order-info { min-width: 0; }
+    .order-info strong { display: block; margin-bottom: 4px; font-size: 10px; }
+    .order-info span { display: block; overflow: hidden; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .order-meta { text-align: right; }
+    .order-meta strong { display: block; margin-bottom: 4px; font-size: 10px; }
+    .status { display: inline-flex; padding: 4px 7px; border-radius: 8px; background: #fff5e8; color: #c57519; font-size: 8px; font-weight: 700; white-space: nowrap; }
+    .status.done { background: #e9f7f1; color: #16835d; }
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+    .simple-panel { padding: 23px; }
+    .empty-state { padding: 36px 15px; color: var(--muted); font-size: 12px; text-align: center; }
+    .empty-state span { display: block; margin-bottom: 12px; font-size: 34px; }
+    .wallet-card { max-width: 420px; margin-bottom: 18px; padding: 23px; border-radius: 17px; background: linear-gradient(135deg, #ff9b4a, #ed5b25); color: white; }
+    .wallet-card span { display: block; margin-bottom: 12px; font-size: 11px; opacity: .82; }
+    .wallet-card strong { font-size: 29px; letter-spacing: -1px; }
+    .account-row { display: flex; justify-content: space-between; gap: 15px; padding: 16px 0; border-bottom: 1px solid var(--line); color: #5d6779; font-size: 12px; }
+    .account-row strong { color: var(--ink); }
+    .toast { position: fixed; z-index: 10; right: 24px; bottom: 24px; max-width: calc(100vw - 32px); padding: 13px 17px; border-radius: 12px; background: #172033; color: white; font-size: 12px; box-shadow: 0 10px 30px #17203333; opacity: 0; transform: translateY(10px); pointer-events: none; transition: .22s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .modal-backdrop { position: fixed; z-index: 8; inset: 0; display: none; place-items: center; padding: 18px; background: #11182766; }
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(100%, 430px); padding: 24px; border-radius: 18px; background: white; box-shadow: 0 20px 70px #10182838; }
+    .modal-icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 15px; border-radius: 15px; background: #e9f7f1; color: #16835d; font-size: 22px; }
+    .modal h2 { margin: 0 0 6px; font-size: 20px; }
+    .modal > p { margin: 0 0 18px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .tracking-code { margin-bottom: 18px; padding: 12px; border: 1px dashed #f3b17e; border-radius: 10px; background: #fff9f4; color: var(--orange-dark); font-size: 12px; font-weight: 800; text-align: center; letter-spacing: .5px; }
+    .modal .secondary-button { width: 100%; margin-top: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: white; color: #596477; font-size: 11px; font-weight: 700; }
+    .driver-nav { display: none; }
+    .driver-mode .customer-nav { display: none; }
+    .driver-mode .driver-nav { display: grid; }
+    .mode-switch { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid #ffe0c9; border-radius: 10px; background: #fff7f1; color: var(--orange-dark); font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .mode-switch:hover { background: #ffecde; }
+    .mode-switch-icon { font-size: 14px; }
+    .driver-app { display: none; }
+    .driver-app.active { display: block; }
+    .driver-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+    .driver-heading h1 { margin: 0 0 5px; font-size: clamp(22px, 2.4vw, 29px); letter-spacing: -1px; }
+    .driver-heading p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .driver-tag { padding: 8px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #727d90; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .driver-status-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; padding: 17px 19px; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    .driver-status-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .driver-status-indicator { display: grid; flex: 0 0 auto; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: #f0f2f5; color: #8992a1; font-size: 17px; }
+    .driver-status-card.online .driver-status-indicator { background: #e7f7ef; color: var(--green); }
+    .driver-status-copy strong { display: block; margin-bottom: 4px; font-size: 13px; }
+    .driver-status-copy span { color: var(--muted); font-size: 10px; }
+    .online-toggle { min-width: 124px; padding: 11px 15px; border: 0; border-radius: 10px; background: #172033; color: white; font-size: 11px; font-weight: 800; }
+    .driver-status-card.online .online-toggle { background: #149467; }
+    .online-toggle:disabled { cursor: not-allowed; opacity: .48; }
+    .driver-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .driver-stat { padding: 13px 15px; border: 1px solid var(--line); border-radius: 13px; background: white; }
+    .driver-stat span { display: block; margin-bottom: 5px; color: var(--muted); font-size: 9px; }
+    .driver-stat strong { font-size: 16px; letter-spacing: -.3px; }
+    .driver-pane { display: none; }
+    .driver-pane.active { display: block; }
+    .driver-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 19px 0 11px; }
+    .driver-section-head h2 { margin: 0; font-size: 15px; }
+    .driver-section-head span { color: var(--muted); font-size: 10px; }
+    .driver-offline, .driver-empty, .driver-register-prompt { padding: 29px 20px; border: 1px dashed #dfe3e9; border-radius: 15px; background: white; text-align: center; }
+    .driver-offline-icon, .driver-empty-icon, .driver-register-icon { display: grid; place-items: center; width: 51px; height: 51px; margin: 0 auto 13px; border-radius: 17px; background: #fff2e8; font-size: 22px; }
+    .driver-offline h2, .driver-empty h2, .driver-register-prompt h2 { margin: 0 0 7px; font-size: 16px; }
+    .driver-offline p, .driver-empty p, .driver-register-prompt p { max-width: 390px; margin: 0 auto 15px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .driver-offer-list { display: grid; gap: 11px; }
+    .driver-offer { width: 100%; padding: 15px; border: 1px solid var(--line); border-radius: 15px; background: white; color: inherit; text-align: left; transition: .18s ease; }
+    .driver-offer:hover { border-color: #ffbf8b; box-shadow: 0 6px 18px #1720330b; transform: translateY(-1px); }
+    .offer-topline { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .offer-kind { display: inline-flex; align-items: center; gap: 6px; color: #636e80; font-size: 9px; font-weight: 750; }
+    .offer-distance-badge { padding: 5px 8px; border-radius: 20px; background: #fff1e7; color: #d65b18; font-size: 9px; font-weight: 800; }
+    .offer-distance-badge.far { background: #eef1ff; color: #5966c5; }
+    .offer-route { display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 0 9px; margin-bottom: 12px; }
+    .offer-route-rail { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 3px; }
+    .offer-route-rail::after { position: absolute; top: 10px; bottom: 10px; left: 7px; border-left: 1px dashed #cbd1db; content: ""; }
+    .offer-route-dot { z-index: 1; width: 8px; height: 8px; border: 2px solid white; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
+    .offer-route-dot.end { margin-top: auto; background: #27374d; box-shadow: 0 0 0 1px #27374d; }
+    .offer-addresses { display: grid; gap: 10px; min-width: 0; }
+    .offer-address { overflow: hidden; color: #384357; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .offer-bottomline { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; padding-top: 11px; border-top: 1px solid #f0f1f4; }
+    .offer-metrics { display: flex; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 9px; }
+    .offer-metrics strong { color: #49556a; }
+    .offer-fee { color: var(--green); font-size: 17px; font-weight: 850; white-space: nowrap; }
+    .offer-tap-hint { display: block; margin-top: 9px; color: #a0a7b5; font-size: 9px; text-align: right; }
+    .driver-back { display: inline-flex; align-items: center; gap: 7px; margin: 0 0 13px; padding: 7px 0; border: 0; background: transparent; color: #667185; font-size: 11px; font-weight: 700; }
+    .driver-detail-card, .driver-active-card, .driver-content-card { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: white; }
+    .driver-detail-hero { padding: 19px; background: linear-gradient(130deg, #fff5ec, #fff); }
+    .driver-detail-hero .offer-topline { margin-bottom: 9px; }
+    .driver-detail-hero h2 { margin: 0 0 5px; font-size: 18px; }
+    .driver-detail-hero p { margin: 0; color: var(--muted); font-size: 10px; }
+    .driver-detail-fee { color: var(--green); font-size: 23px; font-weight: 850; }
+    .driver-detail-body { padding: 18px 19px 20px; }
+    .detail-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 17px; }
+    .detail-metric { padding: 10px; border-radius: 10px; background: #f7f8fa; }
+    .detail-metric span { display: block; margin-bottom: 4px; color: var(--muted); font-size: 9px; }
+    .detail-metric strong { font-size: 11px; }
+    .address-group { display: grid; gap: 12px; margin: 12px 0 17px; }
+    .driver-address-link { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 11px; color: inherit; text-decoration: none; }
+    .driver-address-link:hover { border-color: #ffbd83; background: #fffaf6; }
+    .driver-address-icon { display: grid; flex: 0 0 auto; place-items: center; width: 29px; height: 29px; border-radius: 9px; background: #fff1e7; color: var(--orange-dark); font-size: 13px; }
+    .driver-address-copy { min-width: 0; flex: 1; }
+    .driver-address-copy span { display: block; margin-bottom: 4px; color: #8992a1; font-size: 9px; font-weight: 750; }
+    .driver-address-copy strong { display: block; color: #313c50; font-size: 11px; line-height: 1.45; }
+    .driver-address-copy small { display: block; margin-top: 4px; color: var(--orange-dark); font-size: 9px; font-weight: 700; }
+    .maps-caption { margin: -4px 0 14px; color: #8a93a2; font-size: 9px; line-height: 1.5; }
+    .driver-route-map { margin: 0 0 15px; overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: white; }
+    .driver-route-map-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 13px 10px; }
+    .driver-route-map-head strong { display: block; margin-bottom: 4px; font-size: 11px; }
+    .driver-route-map-head span { display: block; color: var(--muted); font-size: 9px; }
+    .location-refresh { flex: 0 0 auto; padding: 7px 9px; border: 1px solid #ffe0c9; border-radius: 9px; background: #fff7f1; color: var(--orange-dark); font-size: 9px; font-weight: 750; }
+    .location-refresh:disabled { opacity: .6; }
+    .route-map-canvas { position: relative; height: 128px; overflow: hidden; border-top: 1px solid #e6eced; background-color: #edf4ed; background-image: linear-gradient(24deg, transparent 47%, #fff 47.8%, #fff 49.2%, transparent 50%), linear-gradient(117deg, transparent 39%, #fff 39.8%, #fff 41.3%, transparent 42%), linear-gradient(166deg, transparent 66%, #fff 66.8%, #fff 68%, transparent 69%), radial-gradient(#d5dfd1 .8px, transparent .8px); background-size: 190px 110px, 250px 130px, 310px 120px, 11px 11px; }
+    .route-map-canvas::after { position: absolute; top: -25%; right: 12%; width: 23%; height: 155%; border-left: 9px solid #d5e8ed; border-radius: 50%; background: #e1eef0; content: ""; transform: rotate(28deg); }
+    .route-map-road { position: absolute; z-index: 1; top: 53%; left: 19%; width: 63%; border-top: 3px dashed var(--orange); transform: rotate(-17deg); }
+    .route-map-marker { position: absolute; z-index: 2; display: grid; place-items: center; width: 27px; height: 27px; border: 3px solid white; border-radius: 50% 50% 50% 4px; color: white; box-shadow: 0 2px 6px #17203330; font-size: 9px; font-weight: 850; transform: rotate(-45deg); }
+    .route-map-marker span { transform: rotate(45deg); }
+    .route-map-marker.driver { top: 28%; left: 22%; background: #2866d7; }
+    .route-map-marker.pickup { top: 49%; left: 72%; background: var(--orange); }
+    .route-map-label { position: absolute; z-index: 2; padding: 4px 6px; border-radius: 6px; background: #ffffffeb; color: #344054; font-size: 8px; font-weight: 750; box-shadow: 0 1px 5px #17203317; }
+    .route-map-label.driver-label { top: 13%; left: 10%; }
+    .route-map-label.pickup-label { right: 5%; bottom: 13%; }
+    .driver-route-map-footer { padding: 9px 12px; border-top: 1px solid #eef0f3; color: #7a8495; font-size: 9px; line-height: 1.5; }
+    .driver-route-map-footer strong { color: #394559; }
+    .swipe-accept { position: relative; height: 54px; overflow: hidden; border-radius: 13px; background: #f1f2f5; }
+    .swipe-accept span { position: absolute; inset: 0; display: grid; place-items: center; color: #717b8d; font-size: 11px; font-weight: 800; pointer-events: none; }
+    .swipe-accept input { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; margin: 0; appearance: none; background: transparent; cursor: grab; }
+    .swipe-accept input::-webkit-slider-thumb { width: 58px; height: 46px; appearance: none; border: 0; border-radius: 10px; background: var(--orange); box-shadow: 0 3px 8px #f9731640; }
+    .swipe-accept input::-moz-range-thumb { width: 58px; height: 46px; border: 0; border-radius: 10px; background: var(--orange); box-shadow: 0 3px 8px #f9731640; }
+    .swipe-accept input:focus-visible { outline: 2px solid #f97316; outline-offset: -2px; }
+    .driver-primary-button { width: 100%; min-height: 47px; padding: 12px 16px; border: 0; border-radius: 11px; background: var(--orange); color: white; font-size: 12px; font-weight: 800; }
+    .driver-primary-button:disabled { cursor: not-allowed; background: #c9cdd5; }
+    .driver-secondary-button { min-height: 43px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 10px; background: white; color: #4d586b; font-size: 11px; font-weight: 750; }
+    .active-progress { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 19px 17px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+    .progress-step { position: relative; color: #a0a7b5; font-size: 9px; text-align: center; }
+    .progress-step::before { display: block; width: 19px; height: 19px; margin: 0 auto 6px; border: 2px solid #e6e8ed; border-radius: 50%; background: white; content: ""; }
+    .progress-step.done { color: #16835d; font-weight: 750; }
+    .progress-step.done::before { border-color: #15966a; background: #15966a; box-shadow: inset 0 0 0 4px white; }
+    .progress-step.current { color: var(--orange-dark); font-weight: 750; }
+    .progress-step.current::before { border-color: var(--orange); box-shadow: inset 0 0 0 4px white; }
+    .active-order-body { padding: 0 19px 19px; }
+    .active-summary { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 12px; color: var(--muted); font-size: 10px; }
+    .active-summary strong { color: var(--green); font-size: 14px; }
+    .proof-box { margin: 3px 0 13px; padding: 18px 14px; border: 1px dashed #f1b37e; border-radius: 13px; background: #fffaf6; text-align: center; }
+    .proof-box .proof-icon { margin-bottom: 6px; font-size: 25px; }
+    .proof-box strong { display: block; margin-bottom: 5px; font-size: 11px; }
+    .proof-box p { margin: 0 0 12px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .proof-preview { display: none; margin: 0 auto 12px; width: 100%; max-height: 180px; border-radius: 10px; object-fit: cover; }
+    .proof-placeholder { display: none; margin: 0 auto 12px; padding: 17px; border-radius: 10px; background: linear-gradient(135deg, #fff0e4, #ffdab9); color: #a54b1b; font-size: 34px; }
+    .proof-placeholder span { display: block; margin-top: 5px; font-size: 9px; font-weight: 750; }
+    .proof-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .driver-content-card { padding: 18px; }
+    .driver-content-card h2 { margin: 0 0 6px; font-size: 15px; }
+    .driver-content-card > p { margin: 0 0 13px; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .driver-ledger-row { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; border-top: 1px solid var(--line); font-size: 10px; }
+    .driver-ledger-row span { color: var(--muted); }
+    .driver-ledger-row strong { text-align: right; }
+    .register-modal .field { margin-bottom: 13px; }
+    .register-modal .field input, .register-modal .field select { min-height: 43px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; }
+    .register-modal .field label { font-size: 10px; }
+    .register-note { margin: 12px 0 0 !important; font-size: 9px !important; }
+    @media (max-width: 1080px) {
+      .app-shell { grid-template-columns: 215px minmax(0, 1fr); }
+      .content { padding-right: 24px; padding-left: 24px; }
+      .topbar { padding-right: 24px; padding-left: 24px; }
+      .dashboard-grid { grid-template-columns: minmax(0, 1fr) minmax(310px, .95fr); gap: 13px; }
+      .route-form { padding-right: 15px; padding-left: 15px; }
+      .panel-head { padding-right: 15px; padding-left: 15px; }
+    }
+    @media (max-width: 820px) {
+      .app-shell { display: block; padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+      .sidebar { position: fixed; z-index: 5; top: auto; right: 0; bottom: 0; left: 0; width: 100%; height: calc(64px + env(safe-area-inset-bottom, 0px)); padding: 5px 8px calc(5px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); border-right: 0; background: #ffffffed; backdrop-filter: blur(14px); }
+      .brand, .nav-label, .sidebar-bottom { display: none; }
+      .nav-list { height: 100%; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+      .nav-item { min-height: 48px; flex-direction: column; justify-content: center; gap: 3px; padding: 4px; border-radius: 10px; font-size: 10px; }
+      .nav-icon { font-size: 17px; }
+      .topbar { position: sticky; z-index: 4; top: 0; height: calc(61px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 18px 0; }
+      .content { padding: 23px 18px 30px; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .map { min-height: 320px; }
+      .form-panel { grid-row: 1; }
+      .stats { gap: 9px; }
+      .stat-card { min-height: 78px; gap: 8px; padding: 12px 10px; }
+      .stat-icon { width: 34px; height: 34px; font-size: 15px; }
+      .stat-card span { font-size: 9px; }
+      .stat-card strong { font-size: 17px; }
+    }
+    @media (max-width: 480px) {
+      html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+      .app-shell, .main, .content, .page-section, .driver-app, .driver-pane { min-width: 0; max-width: 100%; }
+      .top-date, .date-pill { display: none; }
+      .content { padding: 18px 13px 24px; }
+      .page-heading { align-items: flex-start; margin-bottom: 17px; }
+      .page-heading h1 { font-size: 23px; }
+      .page-heading p { max-width: 260px; font-size: 12px; line-height: 1.5; }
+      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+      .stat-card { display: block; padding: 10px 8px; }
+      .stat-icon { width: 30px; height: 30px; margin-bottom: 7px; border-radius: 9px; }
+      .stat-card span { min-height: 25px; font-size: 10px; line-height: 1.3; }
+      .stat-card strong { font-size: 15px; }
+      .map { min-height: 270px; }
+      .vehicle-options { gap: 6px; }
+      .vehicle-option { padding: 8px 7px; }
+      .order-list { padding-right: 13px; padding-left: 13px; }
+      .panel { border-radius: 14px; }
+      .panel-head { padding: 16px 14px 12px; }
+      .panel-head h2 { font-size: 15px; }
+      .panel-head p { font-size: 11px; }
+      .route-form { padding: 0 14px; }
+      .address-row .field { padding: 5px 10px 7px; }
+      .field label, .select-field label { font-size: 10px; }
+      .field input, .field select, .select-field select, .payment-select { min-height: 34px; font-size: 16px; }
+      .select-field { padding: 8px 9px; }
+      .vehicle-name { font-size: 10px; }
+      .vehicle-price { font-size: 9px; }
+      .primary-button { min-height: 46px; font-size: 13px; }
+      .modal-backdrop { padding: 14px; }
+      .modal { padding: 21px; }
+      .toast { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); left: 12px; text-align: center; }
+      .topbar { justify-content: flex-end; gap: 8px; padding-right: 12px; padding-left: 12px; }
+      .breadcrumbs { display: none; }
+      .topbar::before { margin-right: auto; color: var(--ink); content: "LoLoMove"; font-size: 15px; font-weight: 850; letter-spacing: -.5px; }
+      .top-actions { min-width: 0; gap: 8px; }
+      .top-actions > .avatar { display: none; }
+      .mode-switch { padding: 8px 9px; font-size: 10px; }
+      .driver-heading { display: block; min-width: 0; margin-bottom: 14px; }
+      .driver-heading > div { min-width: 0; }
+      .driver-heading h1 { max-width: 100%; font-size: 23px; line-height: 1.25; overflow-wrap: anywhere; }
+      .driver-heading p { max-width: 100%; font-size: 12px; }
+      .driver-tag { padding: 7px 8px; font-size: 9px; }
+      .driver-status-card { gap: 8px; padding: 13px 12px; }
+      .driver-status-indicator { width: 37px; height: 37px; }
+      .driver-status-copy strong { font-size: 11px; }
+      .driver-status-copy span { font-size: 10px; }
+      .online-toggle { min-width: 101px; padding: 11px 10px; font-size: 10px; }
+      .driver-stats { gap: 6px; }
+      .driver-stat { padding: 11px 9px; }
+      .driver-stat span { font-size: 9px; }
+      .driver-stat strong { font-size: 14px; }
+      .driver-section-head h2 { font-size: 14px; }
+      .driver-section-head span, .offer-kind, .offer-tap-hint { font-size: 10px; }
+      .offer-address { font-size: 11px; white-space: normal; overflow-wrap: anywhere; }
+      .offer-bottomline { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+      .offer-metrics { min-width: 0; flex-direction: column; gap: 5px; font-size: 10px; }
+      .offer-fee { font-size: 15px; }
+      .driver-offer { padding: 13px; }
+      .driver-detail-body { padding: 15px 13px 14px; }
+      .driver-detail-hero { padding: 16px 14px; }
+      .driver-heading p { font-size: 12px; }
+      .driver-address-copy span, .driver-address-copy small, .maps-caption, .progress-step { font-size: 10px; }
+      .route-map-canvas { height: 118px; }
+      .active-progress { margin-right: 13px; margin-left: 13px; }
+      .active-order-body { padding-right: 13px; padding-left: 13px; }
+      .driver-content-card { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">L</div><div class="brand-name">lolo<span>move</span></div></div>
+      <div class="nav-label">MENU CHÍNH</div>
+      <nav class="nav-list customer-nav" aria-label="Điều hướng khách hàng">
+        <button class="nav-item active" data-page="home"><span class="nav-icon">⌂</span>Trang chủ</button>
+        <button class="nav-item" data-page="orders"><span class="nav-icon">▤</span>Đơn hàng</button>
+        <button class="nav-item" data-page="wallet"><span class="nav-icon">▣</span>Ví của tôi</button>
+        <button class="nav-item" data-page="account"><span class="nav-icon">◉</span>Tài khoản</button>
+      </nav>
+      <nav class="nav-list driver-nav" aria-label="Điều hướng tài xế">
+        <button class="nav-item active" data-driver-page="home"><span class="nav-icon">⌂</span>Đơn mới</button>
+        <button class="nav-item" data-driver-page="income"><span class="nav-icon">₫</span>Thu nhập</button>
+        <button class="nav-item" data-driver-page="history"><span class="nav-icon">▤</span>Lịch sử</button>
+        <button class="nav-item" data-driver-page="profile"><span class="nav-icon">◉</span>Hồ sơ</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="help-card"><strong>Cần LoLo hỗ trợ?</strong><p>Đội ngũ hỗ trợ luôn sẵn sàng giúp bạn.</p><a href="tel:19001234">☎ &nbsp;1900 1234</a></div>
+        <div class="profile-mini"><div class="avatar">HN</div><div><strong>Hon Nguyen</strong><span>Khách hàng thân thiết</span></div></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumbs">LoLoMove &nbsp;›&nbsp; <strong id="breadcrumb-current">Trang chủ</strong></div>
+        <div class="top-actions"><span class="top-date" id="today-label"></span><button class="mode-switch" id="mode-switch"><span class="mode-switch-icon">🏍️</span><span id="mode-switch-label">Ứng dụng tài xế</span></button><button class="icon-button" id="notice-button" aria-label="Thông báo">♧<i class="notification-dot"></i></button><div class="avatar">HN</div></div>
+      </header>
+
+      <div class="content">
+        <section class="page-section active" id="page-home">
+          <div class="page-heading"><div><h1>Chào buổi sáng, Hon 👋</h1><p>Gửi hàng nhanh chóng, để LoLo lo phần còn lại.</p></div><div class="date-pill">✦ &nbsp; Giao hàng thật nhẹ</div></div>
+          <div class="stats">
+            <div class="stat-card"><div class="stat-icon">▤</div><div><span>Đơn hôm nay</span><strong id="today-orders">08</strong></div></div>
+            <div class="stat-card"><div class="stat-icon">✓</div><div><span>Giao thành công</span><strong id="delivered-orders">07</strong></div></div>
+            <div class="stat-card"><div class="stat-icon">◷</div><div><span>Đang giao</span><strong id="active-orders">01</strong></div></div>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel form-panel">
+              <div class="panel-head"><div><h2>Tạo đơn giao hàng</h2><p>Nhập thông tin để bắt đầu chuyến giao mới</p></div><span class="live-badge"><i></i> Tài xế quanh bạn</span></div>
+              <form class="route-form" id="order-form">
+                <div class="address-stack">
+                  <div class="address-row"><span class="route-dot start">●</span><div class="field"><label for="pickup">ĐIỂM LẤY HÀNG</label><input id="pickup" name="pickup" placeholder="Ví dụ: 12 Nguyễn Huệ, Quận 1" required></div></div>
+                  <div class="address-row"><span class="route-dot end">●</span><div class="field"><label for="dropoff">ĐIỂM GIAO HÀNG</label><input id="dropoff" name="dropoff" placeholder="Ví dụ: 25 Lê Lợi, Quận 3" required></div></div>
+                </div>
+                <div class="section-label">Chọn phương tiện <span>Phù hợp với kiện hàng của bạn</span></div>
+                <div class="vehicle-options" role="group" aria-label="Chọn phương tiện">
+                  <button type="button" class="vehicle-option selected" data-vehicle="bike" data-price="25000"><span class="vehicle-top">🏍️ <small>⚡</small></span><span class="vehicle-name">LoLo Bike</span><span class="vehicle-price">Từ 25.000đ</span></button>
+                  <button type="button" class="vehicle-option" data-vehicle="car" data-price="45000"><span class="vehicle-top">🚗 <small>◷</small></span><span class="vehicle-name">LoLo Car</span><span class="vehicle-price">Từ 45.000đ</span></button>
+                  <button type="button" class="vehicle-option" data-vehicle="van" data-price="80000"><span class="vehicle-top">🚚 <small>▣</small></span><span class="vehicle-name">LoLo Van</span><span class="vehicle-price">Từ 80.000đ</span></button>
+                </div>
+                <div class="details-row">
+                  <div class="select-field"><label for="package-type">Loại hàng hóa</label><select id="package-type"><option>Hàng thông thường</option><option>Đồ ăn, thức uống</option><option>Tài liệu, giấy tờ</option><option>Hàng dễ vỡ</option></select></div>
+                  <div class="select-field"><label for="package-size">Kích thước</label><select id="package-size"><option value="0">Nhỏ gọn</option><option value="5000">Vừa</option><option value="15000">Cồng kềnh</option></select></div>
+                </div>
+                <div class="payment-row"><span>Phương thức thanh toán</span><select class="payment-select" id="payment-method"><option>Tiền mặt</option><option>Ví LoLo</option></select></div>
+                <div class="price-row"><span>Giá cước dự kiến</span><strong id="estimated-price">25.000đ</strong></div>
+                <button class="primary-button" type="submit">＋ &nbsp; Tạo đơn giao hàng</button>
+                <p class="fine-print">Giá cước có thể thay đổi theo quãng đường thực tế.</p>
+              </form>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head"><div><h2>Lộ trình dự kiến</h2><p>Thành phố Hồ Chí Minh</p></div><span class="live-badge"><i></i> Bản đồ trực tiếp</span></div>
+              <div class="map" aria-label="Bản đồ minh họa lộ trình giao hàng">
+                <div class="map-water"></div><div class="map-road"></div><div class="map-road secondary"></div>
+                <span class="map-label one">Quận 1</span><span class="map-label two">Quận 3</span><span class="map-label three">Bình Thạnh</span><span class="map-label four">Quận 10</span>
+                <div class="route-line"></div><div class="map-pin pickup"><span>A</span></div><div class="map-pin dropoff"><span>B</span></div>
+                <div class="map-caption"><strong>↗ 6,2 km</strong><span>·</span><span>Khoảng 20 phút</span></div>
+              </div>
+            </section>
+          </div>
+          <section class="panel recent-panel">
+            <div class="panel-head"><div><h2>Đơn hàng gần đây</h2><p>Theo dõi nhanh các đơn giao của bạn</p></div><button class="text-button" data-goto="orders">Xem tất cả &nbsp;→</button></div>
+            <div class="order-list" id="recent-orders"></div>
+          </section>
+        </section>
+
+        <section class="page-section" id="page-orders">
+          <div class="page-heading"><div><h1>Đơn hàng của bạn</h1><p>Quản lý và theo dõi các chuyến giao LoLoMove.</p></div></div>
+          <section class="panel"><div class="panel-head"><div><h2>Lịch sử đơn hàng</h2><p>Các đơn hàng gần đây nhất</p></div><button class="text-button" data-goto="home">＋ Tạo đơn mới</button></div><div class="order-list" id="all-orders"></div></section>
+        </section>
+
+        <section class="page-section" id="page-wallet">
+          <div class="page-heading"><div><h1>Ví LoLo</h1><p>Thanh toán đơn hàng tiện lợi hơn với số dư trong ví.</p></div></div>
+          <section class="panel simple-panel"><div class="wallet-card"><span>SỐ DƯ KHẢ DỤNG</span><strong>450.000đ</strong></div><button class="primary-button" id="topup-button" style="max-width:300px">＋ &nbsp; Nạp tiền vào ví</button></section>
+        </section>
+
+        <section class="page-section" id="page-account">
+          <div class="page-heading"><div><h1>Tài khoản</h1><p>Thông tin cá nhân và tùy chọn của bạn.</p></div></div>
+          <section class="panel simple-panel"><div class="account-row"><span>Họ và tên</span><strong>Hon Nguyen</strong></div><div class="account-row"><span>Số điện thoại</span><strong>090 ••• •• 88</strong></div><div class="account-row"><span>Email</span><strong>hon.nguyen@email.com</strong></div><div class="account-row"><span>Hạng thành viên</span><strong style="color:#e77b25">✦ LoLo thân thiết</strong></div></section>
+        </section>
+
+        <section class="driver-app" id="driver-app">
+          <div class="driver-heading"><div><h1>Chào tài xế LoLoMove 👋</h1><p id="driver-greeting">Bật ứng dụng để xem cuốc giao hàng quanh bạn.</p></div><span class="driver-tag">🏍️ &nbsp; Đối tác tài xế</span></div>
+          <div class="driver-status-card" id="driver-status-card">
+            <div class="driver-status-info"><div class="driver-status-indicator" id="driver-status-icon">◷</div><div class="driver-status-copy"><strong id="driver-status-title">Bạn đang ngoại tuyến</strong><span id="driver-status-description">Đăng ký để bắt đầu nhận cuốc giao hàng.</span></div></div>
+            <button type="button" class="online-toggle" id="driver-toggle" aria-pressed="false">Đăng ký tài xế</button>
+          </div>
+          <div class="driver-stats">
+            <div class="driver-stat"><span>Thu nhập hôm nay</span><strong id="driver-today-income">186.000đ</strong></div>
+            <div class="driver-stat"><span>Đơn đã giao</span><strong id="driver-today-count">06 đơn</strong></div>
+            <div class="driver-stat"><span>Đánh giá</span><strong>⭐ 4,9</strong></div>
+          </div>
+
+          <section class="driver-pane active" id="driver-pane-home">
+            <div class="driver-register-prompt" id="driver-register-prompt">
+              <div class="driver-register-icon">🛵</div><h2>Trở thành tài xế LoLoMove</h2>
+              <p>Đăng ký thông tin tài xế để bật ứng dụng, xem cuốc gần xa và bắt đầu giao hàng.</p>
+              <button type="button" class="driver-primary-button" id="driver-register-button">Đăng ký nhận đơn</button>
+            </div>
+            <div id="driver-offline">
+              <div class="driver-section-head"><h2>Cuốc giao gần bạn</h2><span>Đơn mới sẽ hiện khi bạn online</span></div>
+              <div class="driver-empty"><div class="driver-empty-icon">🌙</div><h2>Đang nghỉ ngơi</h2><p>Bật nút “Bắt đầu làm” để LoLoMove tìm các cuốc giao hàng cho bạn nhé.</p></div>
+            </div>
+            <div id="driver-online" hidden>
+              <div class="driver-section-head"><h2>Cuốc giao quanh bạn</h2><span id="driver-offer-count">3 cuốc đang chờ</span></div>
+              <div class="driver-offer-list" id="driver-offer-list"></div>
+              <div class="driver-active-card" id="driver-active-order" hidden></div>
+            </div>
+          </section>
+
+          <section class="driver-pane" id="driver-pane-detail"><button type="button" class="driver-back" id="driver-back-offers">← &nbsp; Quay lại danh sách cuốc</button><div id="driver-detail-content"></div></section>
+
+          <section class="driver-pane" id="driver-pane-income">
+            <div class="driver-content-card"><h2>Thu nhập của bạn</h2><p>Tiền công chuyến giao được cộng sau khi hoàn tất đơn.</p><div class="wallet-card" style="max-width:none;margin-bottom:15px"><span>THU NHẬP HÔM NAY</span><strong id="driver-income-total">186.000đ</strong></div><div class="driver-ledger-row"><span>LoLo Bike · 09:42</span><strong>+ 38.000đ</strong></div><div class="driver-ledger-row"><span>LoLo Bike · 08:55</span><strong>+ 29.000đ</strong></div><div class="driver-ledger-row"><span>Thưởng hoạt động</span><strong>+ 25.000đ</strong></div></div>
+          </section>
+
+          <section class="driver-pane" id="driver-pane-history">
+            <div class="driver-content-card"><h2>Lịch sử giao hàng</h2><p>Các chuyến giao hoàn thành gần đây.</p><div id="driver-history-rows"><div class="driver-ledger-row"><span>📦 &nbsp; 12 Nguyễn Huệ → 25 Lê Lợi</span><strong>+ 38.000đ</strong></div><div class="driver-ledger-row"><span>📦 &nbsp; 88 Pasteur → 15 Võ Văn Tần</span><strong>+ 29.000đ</strong></div><div class="driver-ledger-row"><span>📦 &nbsp; Cửa hàng LoLo → Bình Thạnh</span><strong>+ 42.000đ</strong></div></div></div>
+          </section>
+
+          <section class="driver-pane" id="driver-pane-profile">
+            <div class="driver-content-card"><h2>Hồ sơ tài xế</h2><p>Thông tin đối tác giao hàng LoLoMove.</p><div class="driver-ledger-row"><span>Tài xế</span><strong id="driver-profile-name">Chưa đăng ký</strong></div><div class="driver-ledger-row"><span>Số điện thoại</span><strong id="driver-profile-phone">—</strong></div><div class="driver-ledger-row"><span>Phương tiện</span><strong id="driver-profile-vehicle">—</strong></div><button type="button" class="driver-secondary-button" id="driver-edit-profile" style="margin-top:15px">Cập nhật thông tin tài xế</button></div>
+          </section>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop" id="order-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal"><div class="modal-icon">✓</div><h2 id="modal-title">Đã tạo đơn thành công!</h2><p>LoLoMove đang tìm tài xế phù hợp gần bạn. Bạn có thể theo dõi trạng thái đơn trong mục Đơn hàng.</p><div class="tracking-code" id="tracking-code"></div><button class="primary-button" id="track-order">Theo dõi đơn hàng</button><button class="secondary-button" id="close-modal">Tạo đơn khác</button></div>
+  </div>
+  <div class="modal-backdrop" id="driver-register-modal" role="dialog" aria-modal="true" aria-labelledby="driver-register-title">
+    <form class="modal register-modal" id="driver-register-form">
+      <div class="modal-icon">🏍️</div><h2 id="driver-register-title">Đăng ký tài xế LoLoMove</h2><p>Điền thông tin cơ bản để tạo hồ sơ tài xế demo trên thiết bị này.</p>
+      <div class="field"><label for="register-name">HỌ VÀ TÊN</label><input id="register-name" name="name" autocomplete="name" placeholder="Nguyễn Văn A" required></div>
+      <div class="field"><label for="register-phone">SỐ ĐIỆN THOẠI</label><input id="register-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="09xx xxx xxx" required></div>
+      <div class="field"><label for="register-vehicle">PHƯƠNG TIỆN GIAO HÀNG</label><select id="register-vehicle" name="vehicle" required><option value="bike">Xe máy</option><option value="car">Ô tô</option><option value="van">Xe tải nhỏ</option></select></div>
+      <button class="primary-button" type="submit">Hoàn tất đăng ký</button><button class="secondary-button" type="button" id="close-register-modal">Để sau</button>
+      <p class="register-note">Bản demo: hồ sơ được lưu trên thiết bị, chưa gửi tới máy chủ.</p>
+    </form>
+  </div>
+  <input id="proof-file" type="file" accept="image/*" capture="environment" hidden>
+
+  <script>
+    const orders = [
+      { id: "LLM-240831-08", pickup: "12 Nguyễn Huệ, Quận 1", dropoff: "25 Lê Lợi, Quận 3", price: 32000, status: "Đang giao", vehicle: "bike", time: "09:42", icon: "🏍️" },
+      { id: "LLM-240831-07", pickup: "88 Pasteur, Quận 1", dropoff: "15 Võ Văn Tần, Quận 3", price: 45000, status: "Hoàn thành", vehicle: "car", time: "09:18", icon: "🚗" },
+      { id: "LLM-240831-06", pickup: "Cửa hàng LoLo, Quận 10", dropoff: "50 Điện Biên Phủ, Bình Thạnh", price: 28000, status: "Hoàn thành", vehicle: "bike", time: "08:56", icon: "🏍️" }
+    ];
+    const vehicleNames = { bike: "LoLo Bike", car: "LoLo Car", van: "LoLo Van" };
+    const statusSteps = ["Đang tìm tài xế", "Tài xế đang đến lấy hàng", "Đang giao hàng", "Hoàn thành"];
+    let selectedVehicle = "bike";
+    let currentOrder = null;
+    let toastTimer;
+    const driverOffers = [
+      { id: "DH-58241", type: "Giao hàng nhanh", pickupDistance: 1.2, deliveryDistance: 4.8, fee: 38000, minutes: 6, pickup: "366 Phan Văn Trị, Phường 5, Gò Vấp", pickupCoords: [10.8178, 106.6771], dropoff: "25 Lê Lợi, Phường Bến Nghé, Quận 1", dropoffCoords: [10.7747, 106.7004], customer: "Chị Mai", size: "1 kiện nhỏ", payment: "Đã thanh toán" },
+      { id: "DH-58256", type: "Giao hàng tiêu chuẩn", pickupDistance: 4.5, deliveryDistance: 11.6, fee: 82000, minutes: 14, pickup: "88 Pasteur, Phường Bến Nghé, Quận 1", pickupCoords: [10.7796, 106.6982], dropoff: "152 Nguyễn Văn Linh, Quận 7", dropoffCoords: [10.7294, 106.7212], customer: "Anh Tuấn", size: "2 kiện hàng", payment: "Người nhận thanh toán" },
+      { id: "DH-58263", type: "Giao hàng nhanh", pickupDistance: 0.8, deliveryDistance: 2.4, fee: 29000, minutes: 4, pickup: "12 Nguyễn Huệ, Phường Bến Nghé, Quận 1", pickupCoords: [10.7746, 106.703], dropoff: "50 Điện Biên Phủ, Phường Đa Kao, Quận 1", dropoffCoords: [10.7895, 106.6978], customer: "Bạn Linh", size: "Tài liệu", payment: "Đã thanh toán" }
+    ];
+    let driverProfile;
+    let driverOnline;
+    let activeJob;
+    let driverTotals;
+    let driverHistory;
+    let selectedOffer = null;
+    let activeDriverPage = "home";
+    let currentCustomerPage = "home";
+    let isDriverMode = false;
+    let proofImageUrl = null;
+    let driverPosition = null;
+    let locationError = "";
+    let locationRequestPending = false;
+
+    const money = (amount) => `${amount.toLocaleString("vi-VN")}đ`;
+    const toast = (message) => {
+      const element = document.getElementById("toast");
+      element.textContent = message;
+      element.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => element.classList.remove("show"), 2800);
+    };
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[character]);
+
+    function loadDriverState(key, fallback) {
+      try {
+        const saved = window.localStorage.getItem(key);
+        return saved ? JSON.parse(saved) : fallback;
+      } catch (error) {
+        console.error(`Unable to load ${key} from local storage.`, error);
+        toast("Không đọc được dữ liệu lưu trên thiết bị. Bạn vẫn có thể dùng bản demo trong phiên này.");
+        return fallback;
+      }
+    }
+
+    function saveDriverState(key, value) {
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch (error) {
+        console.error(`Unable to save ${key} to local storage.`, error);
+        toast("Không lưu được dữ liệu trên thiết bị. Vui lòng kiểm tra dung lượng trình duyệt.");
+        return false;
+      }
+    }
+
+    driverProfile = loadDriverState("lolomove-driver-profile", null);
+    driverOnline = loadDriverState("lolomove-driver-online", false);
+    activeJob = loadDriverState("lolomove-driver-active-job", null);
+    driverTotals = loadDriverState("lolomove-driver-totals", { income: 186000, count: 6 });
+    driverHistory = loadDriverState("lolomove-driver-history", []);
+    if (activeJob && !activeJob.pickupCoords) {
+      const sampleOffer = driverOffers.find((offer) => offer.id === activeJob.id);
+      if (sampleOffer) {
+        activeJob = { ...activeJob, pickupCoords: sampleOffer.pickupCoords, dropoffCoords: sampleOffer.dropoffCoords };
+        saveDriverState("lolomove-driver-active-job", activeJob);
+      }
+    }
+    if (activeJob) driverOnline = true;
+
+    function renderOrders(targetId, items) {
+      const target = document.getElementById(targetId);
+      if (!items.length) {
+        target.innerHTML = '<div class="empty-state"><span>📦</span>Bạn chưa có đơn hàng nào. Hãy tạo đơn giao đầu tiên nhé!</div>';
+        return;
+      }
+      target.innerHTML = items.map((order) => `
+        <div class="order-item">
+          <div class="order-icon">${order.icon}</div>
+          <div class="order-info"><strong>${escapeHtml(order.id)} <span style="display:inline;color:#9aa2af">· ${escapeHtml(order.time)}</span></strong><span>${escapeHtml(order.pickup)} &nbsp;→&nbsp; ${escapeHtml(order.dropoff)}</span></div>
+          <div class="order-meta"><strong>${money(order.price)}</strong><span class="status ${order.status === "Hoàn thành" ? "done" : ""}">${escapeHtml(order.status)}</span></div>
+        </div>`).join("");
+    }
+
+    function renderAllOrders() {
+      renderOrders("recent-orders", orders.slice(0, 3));
+      renderOrders("all-orders", orders);
+    }
+
+    function updatePrice() {
+      const vehicle = document.querySelector(`[data-vehicle="${selectedVehicle}"]`);
+      const base = Number(vehicle.dataset.price);
+      const sizeFee = Number(document.getElementById("package-size").value);
+      document.getElementById("estimated-price").textContent = money(base + sizeFee);
+    }
+
+    function showPage(page) {
+      isDriverMode = false;
+      document.body.classList.remove("driver-mode");
+      document.getElementById("driver-app").classList.remove("active");
+      document.querySelectorAll(".page-section").forEach((section) => section.classList.toggle("active", section.id === `page-${page}`));
+      document.querySelectorAll(".nav-item").forEach((item) => item.classList.toggle("active", item.dataset.page === page));
+      currentCustomerPage = page;
+      document.getElementById("mode-switch-label").textContent = "Ứng dụng tài xế";
+      document.querySelector(".mode-switch-icon").textContent = "🏍️";
+      const labels = { home: "Trang chủ", orders: "Đơn hàng", wallet: "Ví của tôi", account: "Tài khoản" };
+      document.getElementById("breadcrumb-current").textContent = labels[page];
+      if (page === "orders") renderOrders("all-orders", orders);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setDriverMode(enabled) {
+      isDriverMode = enabled;
+      document.body.classList.toggle("driver-mode", enabled);
+      document.getElementById("driver-app").classList.toggle("active", enabled);
+      document.querySelectorAll(".page-section").forEach((section) => section.classList.toggle("active", !enabled && section.id === `page-${currentCustomerPage}`));
+      document.getElementById("mode-switch-label").textContent = enabled ? "Chế độ khách" : "Ứng dụng tài xế";
+      document.querySelector(".mode-switch-icon").textContent = enabled ? "🛍️" : "🏍️";
+      if (enabled) {
+        showDriverPage(activeDriverPage);
+      } else {
+        document.getElementById("breadcrumb-current").textContent = ({ home: "Trang chủ", orders: "Đơn hàng", wallet: "Ví của tôi", account: "Tài khoản" })[currentCustomerPage];
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function mapsUrl(destination, origin) {
+      const parameters = new URLSearchParams({
+        api: "1",
+        destination,
+        travelmode: "two-wheeler",
+        dir_action: "navigate"
+      });
+      if (origin) parameters.set("origin", origin);
+      return `https://www.google.com/maps/dir/?${parameters.toString()}`;
+    }
+
+    function mapSearchUrl(address) {
+      const parameters = new URLSearchParams({ api: "1", query: address });
+      return `https://www.google.com/maps/search/?${parameters.toString()}`;
+    }
+
+    function distanceBetween(first, second) {
+      const radians = (degrees) => degrees * Math.PI / 180;
+      const earthRadiusKm = 6371;
+      const latitudeDelta = radians(second[0] - first[0]);
+      const longitudeDelta = radians(second[1] - first[1]);
+      const calculation = Math.sin(latitudeDelta / 2) ** 2
+        + Math.cos(radians(first[0])) * Math.cos(radians(second[0])) * Math.sin(longitudeDelta / 2) ** 2;
+      return earthRadiusKm * 2 * Math.atan2(Math.sqrt(calculation), Math.sqrt(1 - calculation));
+    }
+
+    function distanceLabel(distance) {
+      return distance < 10 ? distance.toFixed(1) : Math.round(distance).toLocaleString("vi-VN");
+    }
+
+    function updateDriverPosition(position) {
+      driverPosition = {
+        coords: [position.coords.latitude, position.coords.longitude],
+        accuracy: position.coords.accuracy,
+        updatedAt: new Date()
+      };
+      locationError = "";
+      renderDriverRouteMap();
+      if (driverOnline && !activeJob) renderDriverOffers();
+    }
+
+    function requestDriverPosition() {
+      if (!navigator.geolocation) {
+        locationError = "Thiết bị hoặc trình duyệt này không hỗ trợ định vị.";
+        renderDriverRouteMap();
+        return;
+      }
+      if (!window.isSecureContext && window.location.protocol !== "file:") {
+        locationError = "Định vị cần trang HTTPS. Hãy mở LoLoMove từ địa chỉ có https:// rồi cấp quyền vị trí.";
+        renderDriverRouteMap();
+        return;
+      }
+      if (locationRequestPending) return;
+      locationRequestPending = true;
+      renderDriverRouteMap();
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          locationRequestPending = false;
+          updateDriverPosition(position);
+        },
+        (error) => {
+          locationRequestPending = false;
+          driverPosition = null;
+          locationError = error.code === 1
+            ? "Bạn chưa cấp quyền vị trí. Hãy cho phép Location cho LoLoMove trong cài đặt trình duyệt."
+            : error.code === 2
+              ? "Chưa xác định được vị trí GPS. Hãy bật Location trên điện thoại rồi thử lại."
+              : "GPS phản hồi chậm. Hãy thử lại ở nơi có tín hiệu vị trí tốt hơn.";
+          renderDriverRouteMap();
+        },
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
+      );
+    }
+
+    function renderDriverRouteMap() {
+      if (!activeJob) return;
+      const summary = document.getElementById("driver-route-distance");
+      const detail = document.getElementById("driver-route-location-detail");
+      const refreshButton = document.getElementById("refresh-driver-location");
+      if (!summary || !detail || !refreshButton) return;
+      refreshButton.disabled = locationRequestPending;
+      refreshButton.textContent = locationRequestPending ? "Đang lấy GPS…" : "⌖ Cập nhật GPS";
+      if (!driverPosition) {
+        summary.textContent = locationRequestPending ? "Đang xác định vị trí…" : "Chưa lấy vị trí GPS";
+        detail.textContent = locationError || "Cấp quyền vị trí để xem khoảng cách từ chỗ bạn tới điểm lấy.";
+        return;
+      }
+      if (!activeJob.pickupCoords) {
+        summary.textContent = "Chưa có tọa độ điểm nhận";
+        detail.textContent = "Địa chỉ cuốc mẫu chưa có tọa độ GPS để ước tính khoảng cách.";
+        return;
+      }
+      const distance = distanceBetween(driverPosition.coords, activeJob.pickupCoords);
+      summary.textContent = `${distanceLabel(distance)} km · đường chim bay`;
+      detail.textContent = distance > 80
+        ? `Vị trí GPS cách điểm lấy khoảng ${distanceLabel(distance)} km. Kiểm tra GPS của thiết bị; đây chưa phải quãng đường đi đường.`
+        : `Vị trí cập nhật lúc ${driverPosition.updatedAt.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })} · sai số GPS khoảng ${Math.round(driverPosition.accuracy)} m.`;
+    }
+
+    function openDriverMap(event) {
+      event.preventDefault();
+      const link = event.currentTarget;
+      const destination = link.dataset.destination;
+      const fallbackOrigin = link.dataset.fallbackOrigin;
+      const mapWindow = window.open("about:blank", "_blank");
+      if (!mapWindow) {
+        toast("Trình duyệt đang chặn cửa sổ bản đồ. Hãy cho phép mở liên kết mới rồi thử lại.");
+        return;
+      }
+      mapWindow.opener = null;
+
+      const openRoute = (origin) => {
+        mapWindow.location.replace(mapsUrl(destination, origin));
+      };
+      const openSearchFallback = () => {
+        mapWindow.location.replace(fallbackOrigin
+          ? mapsUrl(destination, fallbackOrigin)
+          : mapSearchUrl(destination));
+        toast(fallbackOrigin
+          ? "Không lấy được GPS; đang mở tuyến từ địa chỉ nhận hàng."
+          : "Không lấy được GPS; Maps đang mở ghim địa chỉ. Cho phép vị trí để hiện tuyến từ chỗ bạn đứng.");
+      };
+
+      if (!navigator.geolocation) {
+        openSearchFallback();
+        return;
+      }
+      if (!window.isSecureContext && window.location.protocol !== "file:") {
+        locationError = "Định vị cần trang HTTPS. Hãy mở LoLoMove từ địa chỉ có https:// rồi cấp quyền vị trí.";
+        renderDriverRouteMap();
+        openSearchFallback();
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const origin = `${position.coords.latitude},${position.coords.longitude}`;
+          updateDriverPosition(position);
+          openRoute(origin);
+          toast("Đã mở Google Maps với tuyến xe máy từ vị trí GPS của bạn.");
+        },
+        (error) => {
+          driverPosition = null;
+          locationError = error.code === 1
+            ? "Quyền GPS bị từ chối. Kiểm tra vị trí thiết bị trước khi mở dẫn đường."
+            : "Không lấy được GPS. Đang dùng địa chỉ dự phòng để mở bản đồ.";
+          renderDriverRouteMap();
+          openSearchFallback();
+        },
+        { enableHighAccuracy: true, maximumAge: 60000, timeout: 8000 }
+      );
+    }
+
+    function renderDriverProfile() {
+      document.getElementById("driver-profile-name").textContent = driverProfile ? driverProfile.name : "Chưa đăng ký";
+      document.getElementById("driver-profile-phone").textContent = driverProfile ? driverProfile.phone : "—";
+      document.getElementById("driver-profile-vehicle").textContent = driverProfile ? ({ bike: "Xe máy", car: "Ô tô", van: "Xe tải nhỏ" })[driverProfile.vehicle] : "—";
+    }
+
+    function renderDriverStatus() {
+      const card = document.getElementById("driver-status-card");
+      const toggle = document.getElementById("driver-toggle");
+      card.classList.toggle("online", driverOnline);
+      document.getElementById("driver-status-icon").textContent = driverOnline ? "✓" : "◷";
+      document.getElementById("driver-status-title").textContent = driverOnline ? "Bạn đang online" : "Bạn đang ngoại tuyến";
+      document.getElementById("driver-status-description").textContent = activeJob
+        ? "Hoàn thành chuyến hiện tại trước khi tạm nghỉ."
+        : driverProfile
+          ? (driverOnline ? "Ứng dụng đang tìm các cuốc giao gần bạn." : "Bạn đang nghỉ. Bật ứng dụng khi sẵn sàng làm việc.")
+          : "Đăng ký để bắt đầu nhận cuốc giao hàng.";
+      toggle.textContent = !driverProfile ? "Đăng ký tài xế" : activeJob ? "Đang giao hàng" : driverOnline ? "Tạm nghỉ" : "Bắt đầu làm";
+      toggle.setAttribute("aria-pressed", String(driverOnline));
+      toggle.disabled = Boolean(activeJob);
+      document.getElementById("driver-register-prompt").hidden = Boolean(driverProfile);
+      document.getElementById("driver-offline").hidden = !driverProfile || driverOnline;
+      document.getElementById("driver-online").hidden = !driverProfile || !driverOnline;
+      document.getElementById("driver-today-income").textContent = money(driverTotals.income);
+      document.getElementById("driver-income-total").textContent = money(driverTotals.income);
+      document.getElementById("driver-today-count").textContent = `${driverTotals.count} đơn`;
+      if (driverProfile) {
+        document.querySelector(".profile-mini strong").textContent = driverProfile.name;
+        document.querySelector(".profile-mini span").textContent = "Đối tác tài xế";
+      } else {
+        document.querySelector(".profile-mini strong").textContent = "Hon Nguyen";
+        document.querySelector(".profile-mini span").textContent = "Khách hàng thân thiết";
+      }
+      renderDriverProfile();
+      if (driverOnline) {
+        if (activeJob) renderActiveJob();
+        else renderDriverOffers();
+      }
+    }
+
+    function renderDriverOffers() {
+      const list = document.getElementById("driver-offer-list");
+      document.getElementById("driver-active-order").hidden = !activeJob;
+      list.hidden = Boolean(activeJob);
+      if (activeJob) return;
+      document.getElementById("driver-offer-count").textContent = `${driverOffers.length} cuốc đang chờ`;
+      list.innerHTML = driverOffers.map((offer) => `
+        <button type="button" class="driver-offer" data-offer-id="${escapeHtml(offer.id)}" aria-label="Xem cuốc ${escapeHtml(offer.id)}">
+          <div class="offer-topline"><span class="offer-kind">🏍️ &nbsp;${escapeHtml(offer.type)}</span><span class="offer-distance-badge ${offer.deliveryDistance >= 8 ? "far" : ""}">${offer.deliveryDistance >= 8 ? "CUỐC XA" : "CUỐC GẦN"}</span></div>
+          <div class="offer-route"><div class="offer-route-rail"><i class="offer-route-dot"></i><i class="offer-route-dot end"></i></div><div class="offer-addresses"><span class="offer-address">Lấy hàng · ${escapeHtml(offer.pickup)}</span><span class="offer-address">Giao hàng · ${escapeHtml(offer.dropoff)}</span></div></div>
+          <div class="offer-bottomline"><div class="offer-metrics"><span>📍 ${driverPosition ? "GPS tới điểm nhận" : "Tạm tính · demo"} <strong>${driverPosition && offer.pickupCoords ? `${distanceLabel(distanceBetween(driverPosition.coords, offer.pickupCoords))} km` : `${offer.pickupDistance} km`}</strong></span><span>↗ Giao <strong>${offer.deliveryDistance} km · demo</strong></span></div><strong class="offer-fee">${money(offer.fee)}</strong></div>
+          <span class="offer-tap-hint">Chạm để xem chi tiết cuốc →</span>
+        </button>`).join("");
+    }
+
+    function renderDriverHome() {
+      renderDriverStatus();
+      if (activeJob && driverOnline) renderActiveJob();
+    }
+
+    function showDriverPage(page) {
+      activeDriverPage = page;
+      document.querySelectorAll(".driver-pane").forEach((pane) => pane.classList.toggle("active", pane.id === `driver-pane-${page}`));
+      document.querySelectorAll(".driver-nav .nav-item").forEach((item) => item.classList.toggle("active", item.dataset.driverPage === page));
+      const labels = { home: "Đơn mới", income: "Thu nhập", history: "Lịch sử", profile: "Hồ sơ" };
+      document.getElementById("breadcrumb-current").textContent = labels[page] || labels.home;
+      if (page === "home") renderDriverHome();
+      if (page === "income") document.getElementById("driver-income-total").textContent = money(driverTotals.income);
+      if (page === "history") renderDriverHistory();
+      if (page === "profile") renderDriverProfile();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showOfferDetails(offer) {
+      if (!driverOnline || activeJob) return;
+      selectedOffer = offer;
+      activeDriverPage = "detail";
+      document.querySelectorAll(".driver-pane").forEach((pane) => pane.classList.toggle("active", pane.id === "driver-pane-detail"));
+      document.querySelectorAll(".driver-nav .nav-item").forEach((item) => item.classList.toggle("active", item.dataset.driverPage === "home"));
+      document.getElementById("breadcrumb-current").textContent = "Chi tiết cuốc";
+      document.getElementById("driver-detail-content").innerHTML = `
+        <article class="driver-detail-card">
+          <div class="driver-detail-hero"><div class="offer-topline"><span class="offer-kind">🏍️ &nbsp;${escapeHtml(offer.type)} · ${escapeHtml(offer.id)}</span><span class="offer-distance-badge ${offer.deliveryDistance >= 8 ? "far" : ""}">${offer.deliveryDistance >= 8 ? "CUỐC XA" : "CUỐC GẦN"}</span></div><h2>${offer.deliveryDistance >= 8 ? "Chuyến đi xa, phí tốt" : "Cuốc giao gần bạn"}</h2><p>Khách: ${escapeHtml(offer.customer)} · ${escapeHtml(offer.size)}</p></div>
+          <div class="driver-detail-body">
+            <div class="detail-metrics"><div class="detail-metric"><span>Đến điểm lấy</span><strong>${driverPosition && offer.pickupCoords ? `${distanceLabel(distanceBetween(driverPosition.coords, offer.pickupCoords))} km · GPS` : `${offer.pickupDistance} km · demo`}</strong></div><div class="detail-metric"><span>Quãng đường giao</span><strong>${offer.deliveryDistance} km · demo</strong></div><div class="detail-metric"><span>Thanh toán</span><strong>${escapeHtml(offer.payment)}</strong></div></div>
+            <div class="price-row"><span>Phí tài xế nhận</span><strong class="driver-detail-fee">${money(offer.fee)}</strong></div>
+            <div class="address-group"><div class="driver-address-link"><span class="driver-address-icon">A</span><span class="driver-address-copy"><span>ĐỊA CHỈ NHẬN HÀNG</span><strong>${escapeHtml(offer.pickup)}</strong></span></div><div class="driver-address-link"><span class="driver-address-icon" style="background:#edf1fb;color:#34425a">B</span><span class="driver-address-copy"><span>ĐỊA CHỈ GIAO HÀNG</span><strong>${escapeHtml(offer.dropoff)}</strong></span></div></div>
+            <div class="maps-caption">Các cuốc hiện là dữ liệu demo. Bấm nhận cuốc rồi cập nhật GPS để xem vị trí hiện tại và khoảng cách ước tính tới điểm lấy.</div>
+            <div class="swipe-accept"><span id="swipe-label">Vuốt sang phải để nhận cuốc</span><input id="accept-slider" aria-label="Vuốt sang phải để nhận cuốc giao hàng" type="range" min="0" max="100" value="0"></div>
+          </div>
+        </article>`;
+      const slider = document.getElementById("accept-slider");
+      slider.addEventListener("input", () => {
+        document.getElementById("swipe-label").textContent = Number(slider.value) >= 100 ? "Thả để nhận cuốc" : "Vuốt sang phải để nhận cuốc";
+      });
+      slider.addEventListener("change", () => {
+        if (Number(slider.value) >= 100) acceptDriverOffer();
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function acceptDriverOffer() {
+      if (!selectedOffer || !driverOnline || activeJob) return;
+      activeJob = { ...selectedOffer, stage: "pickup", proof: false, acceptedAt: new Date().toISOString() };
+      selectedOffer = null;
+      saveDriverState("lolomove-driver-active-job", activeJob);
+      showDriverPage("home");
+      requestDriverPosition();
+      toast("Đã nhận cuốc! Mở bản đồ để đi tới điểm lấy hàng.");
+    }
+
+    function renderActiveJob() {
+      const card = document.getElementById("driver-active-order");
+      if (!activeJob) {
+        card.hidden = true;
+        return;
+      }
+      const stage = activeJob.stage;
+      const pickupReached = stage !== "pickup";
+      const pickupDistance = driverPosition && activeJob.pickupCoords
+        ? `${distanceLabel(distanceBetween(driverPosition.coords, activeJob.pickupCoords))} km · GPS`
+        : "Chưa lấy GPS";
+      const proofContent = activeJob.proof
+        ? (activeJob.proofType === "camera" && proofImageUrl
+          ? `<img class="proof-preview" alt="Ảnh kiện hàng vừa chụp" src="${proofImageUrl}" style="display:block">`
+          : '<div class="proof-placeholder" style="display:block">📦<span>ẢNH XÁC NHẬN DEMO</span></div>')
+        : '<div class="proof-placeholder" style="display:block">📷<span>CHƯA CÓ ẢNH XÁC NHẬN</span></div>';
+      let actionContent = "";
+      if (stage === "pickup") {
+        actionContent = `<button type="button" class="driver-primary-button" id="arrived-pickup">Tôi đã tới điểm lấy hàng</button>`;
+      } else if (stage === "photo") {
+        actionContent = `<div class="proof-box"><div class="proof-icon">📷</div><strong>Chụp ảnh xác nhận kiện hàng</strong><p>Đây là bước demo: có thể chụp bằng camera hoặc dùng ảnh mẫu để tiếp tục.</p>${proofContent}<div class="proof-actions"><button type="button" class="driver-secondary-button" id="capture-proof">Chụp ảnh đơn hàng</button><button type="button" class="driver-secondary-button" id="demo-proof">Dùng ảnh mẫu</button></div></div><button type="button" class="driver-primary-button" id="confirm-pickup" ${activeJob.proof ? "" : "disabled"}>Xác nhận đã nhận hàng</button>`;
+      } else {
+        actionContent = `<div class="proof-box" style="padding:12px"><strong>✓ Đã xác nhận ảnh kiện hàng</strong><p style="margin:5px 0 0">Chạm vào địa chỉ giao để mở dẫn đường trên bản đồ.</p></div><button type="button" class="driver-primary-button" id="complete-delivery">Xác nhận giao thành công</button>`;
+      }
+      card.hidden = false;
+      card.innerHTML = `
+        <div class="panel-head"><div><h2>Chuyến đang thực hiện</h2><p>${escapeHtml(activeJob.id)} · ${escapeHtml(activeJob.type)}</p></div><span class="live-badge"><i></i> Đang giao</span></div>
+        <div class="active-progress"><div class="progress-step done">Nhận cuốc</div><div class="progress-step ${pickupReached ? "done" : stage === "pickup" ? "current" : ""}">Lấy hàng</div><div class="progress-step ${stage === "dropoff" ? "current" : ""}">Giao hàng</div></div>
+        <div class="active-order-body">
+          <div class="active-summary"><span>Phí giao hàng của bạn</span><strong>${money(activeJob.fee)}</strong></div>
+          <div class="address-group">
+            <a class="driver-address-link" href="${mapSearchUrl(activeJob.pickup)}" data-destination="${escapeHtml(activeJob.pickup)}" data-fallback-origin="" target="_blank" rel="noopener noreferrer"><span class="driver-address-icon">A</span><span class="driver-address-copy"><span>ĐIỂM NHẬN HÀNG · CUỐC DEMO</span><strong>${escapeHtml(activeJob.pickup)}</strong><small>↗ Dẫn đường xe máy · vị trí hiện tại</small></span></a>
+            <a class="driver-address-link" href="${mapsUrl(activeJob.dropoff, activeJob.pickup)}" data-destination="${escapeHtml(activeJob.dropoff)}" data-fallback-origin="${escapeHtml(activeJob.pickup)}" target="_blank" rel="noopener noreferrer"><span class="driver-address-icon" style="background:#edf1fb;color:#34425a">B</span><span class="driver-address-copy"><span>ĐIỂM GIAO HÀNG · QUÃNG ĐƯỜNG DEMO</span><strong>${escapeHtml(activeJob.dropoff)}</strong><small>↗ Dẫn đường xe máy · vị trí hiện tại</small></span></a>
+          </div>
+          <section class="driver-route-map" aria-label="Bản đồ ước tính đường tới điểm nhận">
+            <div class="driver-route-map-head"><div><strong>Vị trí của bạn → điểm nhận</strong><span id="driver-route-distance">${pickupDistance}</span></div><button type="button" class="location-refresh" id="refresh-driver-location">⌖ Cập nhật GPS</button></div>
+            <div class="route-map-canvas"><span class="route-map-label driver-label">Bạn</span><span class="route-map-label pickup-label">Điểm lấy hàng</span><div class="route-map-road"></div><span class="route-map-marker driver"><span>●</span></span><span class="route-map-marker pickup"><span>A</span></span></div>
+            <div class="driver-route-map-footer" id="driver-route-location-detail">${driverPosition ? "Khoảng cách GPS dạng đường chim bay; không phải quãng đường đi đường." : "Bấm “Cập nhật GPS” để tính khoảng cách từ vị trí thiết bị tới điểm nhận."}</div>
+          </section>
+          <div class="maps-caption">Bản đồ nhỏ là sơ đồ nhanh, không tải dữ liệu ngoài. Chạm địa chỉ để mở Google Maps; chế độ xe máy phụ thuộc hỗ trợ của ứng dụng trên điện thoại.</div>
+          ${actionContent}
+        </div>`;
+      renderDriverRouteMap();
+      const locationButton = document.getElementById("refresh-driver-location");
+      if (locationButton) locationButton.addEventListener("click", requestDriverPosition);
+      const arrivedButton = document.getElementById("arrived-pickup");
+      if (arrivedButton) arrivedButton.addEventListener("click", () => {
+        activeJob.stage = "photo";
+        saveDriverState("lolomove-driver-active-job", activeJob);
+        renderActiveJob();
+      });
+      const captureButton = document.getElementById("capture-proof");
+      if (captureButton) captureButton.addEventListener("click", () => document.getElementById("proof-file").click());
+      const demoButton = document.getElementById("demo-proof");
+      if (demoButton) demoButton.addEventListener("click", () => {
+        activeJob.proof = true;
+        activeJob.proofType = "demo";
+        saveDriverState("lolomove-driver-active-job", activeJob);
+        renderActiveJob();
+        toast("Đã thêm ảnh mẫu xác nhận cho bản demo.");
+      });
+      const confirmPickup = document.getElementById("confirm-pickup");
+      if (confirmPickup) confirmPickup.addEventListener("click", () => {
+        if (!activeJob.proof) {
+          toast("Chụp ảnh hoặc thêm ảnh mẫu trước khi xác nhận nhận hàng.");
+          return;
+        }
+        activeJob.stage = "dropoff";
+        saveDriverState("lolomove-driver-active-job", activeJob);
+        renderActiveJob();
+        toast("Đã xác nhận lấy hàng. Chạm địa chỉ giao để mở bản đồ.");
+      });
+      const completeButton = document.getElementById("complete-delivery");
+      if (completeButton) completeButton.addEventListener("click", completeDriverDelivery);
+      card.querySelectorAll("a[data-destination]").forEach((link) => link.addEventListener("click", openDriverMap));
+    }
+
+    function completeDriverDelivery() {
+      if (!activeJob || activeJob.stage !== "dropoff") return;
+      driverHistory.unshift({ id: activeJob.id, pickup: activeJob.pickup, dropoff: activeJob.dropoff, fee: activeJob.fee, completedAt: new Date().toISOString() });
+      driverTotals = { income: driverTotals.income + activeJob.fee, count: driverTotals.count + 1 };
+      activeJob = null;
+      saveDriverState("lolomove-driver-active-job", null);
+      saveDriverState("lolomove-driver-totals", driverTotals);
+      saveDriverState("lolomove-driver-history", driverHistory);
+      renderDriverHome();
+      toast("Giao hàng thành công! Phí chuyến đã được cộng vào thu nhập.");
+    }
+
+    function renderDriverHistory() {
+      const historyRows = driverHistory.map((trip) => `<div class="driver-ledger-row"><span>📦 &nbsp;${escapeHtml(trip.pickup)} → ${escapeHtml(trip.dropoff)}</span><strong>+ ${money(trip.fee)}</strong></div>`).join("");
+      const rows = document.getElementById("driver-history-rows");
+      if (driverHistory.length) rows.innerHTML = historyRows;
+    }
+
+    function showDriverRegistration() {
+      if (driverProfile) {
+        document.getElementById("register-name").value = driverProfile.name;
+        document.getElementById("register-phone").value = driverProfile.phone;
+        document.getElementById("register-vehicle").value = driverProfile.vehicle;
+      } else {
+        document.getElementById("driver-register-form").reset();
+      }
+      document.getElementById("driver-register-modal").classList.add("open");
+    }
+
+    document.querySelector(".customer-nav").querySelectorAll(".nav-item").forEach((item) => item.addEventListener("click", () => showPage(item.dataset.page)));
+    document.querySelectorAll("[data-goto]").forEach((item) => item.addEventListener("click", () => showPage(item.dataset.goto)));
+    document.querySelectorAll(".driver-nav .nav-item").forEach((item) => item.addEventListener("click", () => showDriverPage(item.dataset.driverPage)));
+    document.getElementById("mode-switch").addEventListener("click", () => setDriverMode(!isDriverMode));
+    document.getElementById("driver-toggle").addEventListener("click", () => {
+      if (!driverProfile) {
+        showDriverRegistration();
+        return;
+      }
+      if (activeJob) {
+        toast("Hoàn thành chuyến đang giao rồi bạn có thể tạm nghỉ.");
+        return;
+      }
+      driverOnline = !driverOnline;
+      saveDriverState("lolomove-driver-online", driverOnline);
+      renderDriverHome();
+      toast(driverOnline ? "Bạn đã online. Các cuốc giao mới đang chờ!" : "Đã tạm nghỉ. Bạn sẽ không nhận cuốc mới.");
+    });
+    document.getElementById("driver-register-button").addEventListener("click", showDriverRegistration);
+    document.getElementById("driver-edit-profile").addEventListener("click", showDriverRegistration);
+    document.getElementById("driver-register-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+      const name = String(formData.get("name") || "").trim();
+      const phone = String(formData.get("phone") || "").trim();
+      const vehicle = String(formData.get("vehicle") || "");
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (!name || !/^\+?[\d ()-]+$/.test(phone) || phoneDigits.length < 9 || phoneDigits.length > 15 || !["bike", "car", "van"].includes(vehicle)) {
+        toast("Vui lòng nhập tên, số điện thoại hợp lệ và chọn phương tiện.");
+        return;
+      }
+      driverProfile = { name, phone, vehicle };
+      driverOnline = false;
+      saveDriverState("lolomove-driver-profile", driverProfile);
+      saveDriverState("lolomove-driver-online", driverOnline);
+      document.getElementById("driver-register-modal").classList.remove("open");
+      renderDriverHome();
+      toast("Đăng ký demo thành công! Bấm “Bắt đầu làm” để xem cuốc.");
+    });
+    document.getElementById("close-register-modal").addEventListener("click", () => document.getElementById("driver-register-modal").classList.remove("open"));
+    document.getElementById("driver-register-modal").addEventListener("click", (event) => {
+      if (event.target.id === "driver-register-modal") event.currentTarget.classList.remove("open");
+    });
+    document.getElementById("driver-back-offers").addEventListener("click", () => showDriverPage("home"));
+    document.getElementById("driver-offer-list").addEventListener("click", (event) => {
+      const card = event.target.closest("[data-offer-id]");
+      if (!card) return;
+      const offer = driverOffers.find((item) => item.id === card.dataset.offerId);
+      if (offer) showOfferDetails(offer);
+    });
+    document.getElementById("proof-file").addEventListener("change", (event) => {
+      const file = event.currentTarget.files && event.currentTarget.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        toast("Vui lòng chọn ảnh để xác nhận kiện hàng.");
+        event.currentTarget.value = "";
+        return;
+      }
+      if (file.size > 12 * 1024 * 1024) {
+        toast("Ảnh cần nhỏ hơn 12 MB để tải nhanh trên điện thoại.");
+        event.currentTarget.value = "";
+        return;
+      }
+      if (proofImageUrl) URL.revokeObjectURL(proofImageUrl);
+      proofImageUrl = URL.createObjectURL(file);
+      activeJob.proof = true;
+      activeJob.proofType = "camera";
+      saveDriverState("lolomove-driver-active-job", activeJob);
+      renderActiveJob();
+      toast("Đã thêm ảnh xác nhận kiện hàng.");
+    });
+    document.querySelectorAll(".vehicle-option").forEach((item) => item.addEventListener("click", () => {
+      selectedVehicle = item.dataset.vehicle;
+      document.querySelectorAll(".vehicle-option").forEach((option) => option.classList.toggle("selected", option === item));
+      updatePrice();
+    }));
+    document.getElementById("package-size").addEventListener("change", updatePrice);
+
+    document.getElementById("order-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const pickup = document.getElementById("pickup").value.trim();
+      const dropoff = document.getElementById("dropoff").value.trim();
+      if (!pickup || !dropoff) {
+        toast("Vui lòng nhập đầy đủ điểm lấy và điểm giao hàng.");
+        return;
+      }
+      if (pickup.toLocaleLowerCase("vi") === dropoff.toLocaleLowerCase("vi")) {
+        toast("Điểm lấy hàng và điểm giao hàng cần khác nhau.");
+        document.getElementById("dropoff").focus();
+        return;
+      }
+      const price = Number(document.querySelector(`[data-vehicle="${selectedVehicle}"]`).dataset.price) + Number(document.getElementById("package-size").value);
+      const timestamp = new Date();
+      const id = `LLM-${String(timestamp.getFullYear()).slice(-2)}${String(timestamp.getMonth() + 1).padStart(2, "0")}${String(timestamp.getDate()).padStart(2, "0")}-${String(Date.now()).slice(-4)}`;
+      currentOrder = { id, pickup, dropoff, price, status: "Đang tìm tài xế", vehicle: selectedVehicle, time: timestamp.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }), icon: selectedVehicle === "bike" ? "🏍️" : selectedVehicle === "car" ? "🚗" : "🚚", step: 0 };
+      orders.unshift(currentOrder);
+      renderAllOrders();
+      document.getElementById("today-orders").textContent = String(8 + orders.length - 3).padStart(2, "0");
+      document.getElementById("active-orders").textContent = String(1 + orders.filter((order) => order.status !== "Hoàn thành").length - 1).padStart(2, "0");
+      document.getElementById("tracking-code").textContent = `MÃ ĐƠN HÀNG: ${id}`;
+      document.getElementById("order-modal").classList.add("open");
+    });
+
+    document.getElementById("close-modal").addEventListener("click", () => {
+      document.getElementById("order-modal").classList.remove("open");
+      document.getElementById("order-form").reset();
+      selectedVehicle = "bike";
+      document.querySelectorAll(".vehicle-option").forEach((option) => option.classList.toggle("selected", option.dataset.vehicle === "bike"));
+      updatePrice();
+    });
+    document.getElementById("track-order").addEventListener("click", () => {
+      document.getElementById("order-modal").classList.remove("open");
+      showPage("orders");
+      if (currentOrder && currentOrder.status !== "Hoàn thành") {
+        currentOrder.step = Math.min(currentOrder.step + 1, statusSteps.length - 1);
+        currentOrder.status = statusSteps[currentOrder.step];
+        if (currentOrder.status === "Hoàn thành") {
+          document.getElementById("delivered-orders").textContent = String(Number(document.getElementById("delivered-orders").textContent) + 1).padStart(2, "0");
+          document.getElementById("active-orders").textContent = String(Math.max(0, Number(document.getElementById("active-orders").textContent) - 1)).padStart(2, "0");
+        }
+        renderAllOrders();
+        toast(`Cập nhật trạng thái: ${currentOrder.status}`);
+      }
+    });
+    document.getElementById("order-modal").addEventListener("click", (event) => {
+      if (event.target.id === "order-modal") document.getElementById("order-modal").classList.remove("open");
+    });
+    document.getElementById("notice-button").addEventListener("click", () => toast("Bạn đã cập nhật các thông báo mới nhất."));
+    document.getElementById("topup-button").addEventListener("click", () => toast("Tính năng nạp tiền sẽ sớm có mặt tại LoLoMove."));
+    document.getElementById("today-label").textContent = new Date().toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+    renderAllOrders();
+  </script>
+</body>
+</html>
